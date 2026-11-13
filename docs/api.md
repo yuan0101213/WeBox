@@ -86,3 +86,7 @@ Dish fields: `{name,description,priceFen,category,imageUrl,proteins,allergens,sp
 - Console quantity edits cannot reduce below consumed quantity or remove dishes with un-cancelled consumption (`409 STOCK_CONFLICT`).
 - `POST /recommendations` body `{prompt,date}`; authenticated SSE events `status`, `recommendation` (`{dish,reason}`), `done`, `error`. This is an actual DeepSeek model request, not a local fallback. Frontend uses streaming fetch with bearer Token.
 - Cached snapshots are eventually consistent; database conditions guarantee no oversell.
+
+## Checkout requestId lifecycle
+
+The same checkout draft keeps its requestId across repeated clicks, reloads and retries, including edits before confirmed success. A changed body after a committed request returns `409 REQUEST_ID_REUSED`; it never creates a second order. Clear the draft only after confirmed success, and use a new ID for a genuinely new checkout. The database enforces `UNIQUE(user_id,request_id)` independently of the active-meal rule. See [idempotency design](order-idempotency.md).

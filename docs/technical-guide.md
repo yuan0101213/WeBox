@@ -57,6 +57,10 @@ WHERE menu_date = ? AND dish_id = ? AND remaining_quantity >= ?;
 
 修改库存、菜单或关联菜品时，写前删除缓存，事务提交后立即再删并在 500ms 后延迟删除；失败删除有有限重试。它是短期最终一致方案，进程崩溃可能丢失延迟任务，慢读/重建竞态仍可能留下旧值直至 TTL 到期，**不是严格强一致缓存**。页面库存约每 2 秒请求 `/api/inventory?date=...`，读取 Redis 快照，未使用 SSE 推库存；真正结算始终检查 MySQL。日期快照无对应菜品时应视为不可用，不能沿用其他日期库存。
 
+### 连续点击与提交幂等
+
+前端为当前结算草稿保留稳定 UUID（`requestId`），同步提交锁覆盖 React 状态更新前的重复事件；超时、刷新或尚未跳转时不换 ID。同一草稿编辑后仍沿用 ID，防止上一单结果未知时再创建一单。后端由 `UNIQUE(user_id, request_id)` 兜底，而不是依赖前端按钮或查询判断。完整生命周期、数据库并发路径与验证方法见 [下单幂等技术方案](order-idempotency.md)。
+
 ## 5. API 与流式 AI
 
 普通成功响应为 `{data:...}`，错误为 `{code,message}`；除 health、注册、登录外均需 `Authorization: Bearer <token>`。完整基础字段见 [API 文档](api.md)。

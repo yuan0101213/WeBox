@@ -125,6 +125,7 @@ npm run test:e2e
 - [完整技术文档](docs/technical-guide.md)
 - [完整部署文档：中间件、后端、前端](docs/deployment-guide.md)
 - [API 文档](docs/api.md)
+- [连续点击与下单幂等方案](docs/order-idempotency.md)
 - [运行截图](docs/screenshots/)
 - [codex记录](WeBox-conversation-2026-11-13.md)
 

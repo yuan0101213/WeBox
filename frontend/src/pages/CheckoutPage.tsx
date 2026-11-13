@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, AutoComplete, Button, Card, Empty, Form, Input, Select, Typography } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { errorMessage, get, post } from '../api/client';
@@ -8,6 +8,7 @@ import { money, today, type Order } from '../types/business';
 import CartItems from '../components/CartItems';
 import { usePreferences } from '../context/PreferencesContext';
 import { useInventory } from '../api/useInventory';
+import { prepareCheckoutAttempt } from '../api/checkoutAttempt';
 interface Availability { deliveryDate: string; mealPeriod: string; adjusted: boolean; existingOrderId: number | null }
 interface Values { deliveryDate: string; mealPeriod: string; address: string }
 export default function CheckoutPage() {
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const { preferences } = usePreferences();
   const [availability, setAvailability] = useState<Availability>();
   const [checking, setChecking] = useState(true), [ruleNote, setRuleNote] = useState(''), [revision, setRevision] = useState(0);
+  const submitting = useRef(false);
   const key = `webox.checkout.${auth.user!.id}`;
   const [addresses, setAddresses] = useState<string[]>([]), [loading, setLoading] = useState(false), [error, setError] = useState('');
   const [form] = Form.useForm<Values>();
@@ -41,21 +43,18 @@ export default function CheckoutPage() {
   useEffect(() => { get<string[]>('/addresses').then(setAddresses).catch(() => {}); }, []);
   function draft(values: Values) {
     const items = cart.items.map(i => ({ dishId: i.dish.id, quantity: i.quantity, selectedOptions: i.selectedOptions.map(o => ({ groupId: o.groupId, optionId: o.optionId })) }));
-    const fingerprint = JSON.stringify({ ...values, items });
-    let old: { fingerprint?: string; requestId?: string } = {};
-    try { old = JSON.parse(localStorage.getItem(key) || '{}'); } catch { /* replace invalid draft */ }
-    const requestId = old.fingerprint === fingerprint && old.requestId ? old.requestId : crypto.randomUUID();
-    localStorage.setItem(key, JSON.stringify({ values, fingerprint, requestId }));
-    return { ...values, items, requestId };
+    return prepareCheckoutAttempt(key, values, items);
   }
   async function submit(values: Values) {
-    if (loading || checking || !availability || cart.count > 5 || shortages.length) return;
+    if (submitting.current || loading || checking || !availability || cart.count > 5 || shortages.length) return;
+    submitting.current = true;
     setLoading(true); setError('');
     try {
       const order = await post<Order>('/orders', draft(values));
-      cart.clear(); localStorage.removeItem(key);
-      navigate(`/orders/${order.id}`, { replace: true, state: { success: true } });
-    } catch (err) { setError(errorMessage(err)); setRevision(value => value + 1); } finally { setLoading(false); }
+      localStorage.removeItem(key);
+      if (order.status !== 'Cancelled') cart.clear();
+      navigate(`/orders/${order.id}`, { replace: true, state: { success: order.status !== 'Cancelled', replayedCancelled: order.status === 'Cancelled' } });
+    } catch (err) { submitting.current = false; setLoading(false); setError(errorMessage(err)); setRevision(value => value + 1); }
   }
   if (!cart.items.length) return <Card><Empty description="Your cart is empty"><Link to="/menu"><Button type="primary">Browse menu</Button></Link></Empty></Card>;
   return <><Link to="/menu">← Back to menu</Link><Typography.Title level={2}>Checkout</Typography.Title><div className="checkout-grid"><Card title="Your meal"><CartItems /><div className="total-line">Total <strong>{money(cart.total)}</strong></div><p className="muted">The final price is calculated by the server when you place your order.</p></Card>
@@ -63,6 +62,6 @@ export default function CheckoutPage() {
       <Form.Item name="deliveryDate" label="Delivery date" rules={[{ required: true, message: 'Choose a delivery date.' }]}><Input type="date" min={today()} /></Form.Item>
       <Form.Item name="mealPeriod" label="Meal period" rules={[{ required: true }]}><Select options={[{ value: 'Lunch', label: 'Lunch' }, { value: 'Dinner', label: 'Dinner' }]} /></Form.Item>
       <Form.Item name="address" label="Delivery address" rules={[{ required: true, whitespace: true, message: 'Enter a delivery address.' }, { max: 200 }]}><AutoComplete options={addresses.map(value => ({ value }))} filterOption={(input, option) => (option?.value || '').toLowerCase().includes(input.toLowerCase())}><Input maxLength={200} placeholder="Building, floor and room" /></AutoComplete></Form.Item>
-      <p className="muted">Selected dishes must be available on your delivery date.</p>{availability?.existingOrderId ? <Button type="primary" block onClick={() => navigate(`/orders/${availability.existingOrderId}`)}>View Existing Order</Button> : <Button type="primary" block htmlType="submit" disabled={checking || !availability || cart.count > 5 || shortages.length > 0} loading={loading || checking}>Place order · {money(cart.total)}</Button>}
+      <p className="muted">Selected dishes must be available on your delivery date.</p>{availability?.existingOrderId ? <Button type="primary" block onClick={() => { localStorage.removeItem(key); navigate(`/orders/${availability.existingOrderId}`); }}>View Existing Order</Button> : <Button type="primary" block htmlType="submit" disabled={loading || checking || !availability || cart.count > 5 || shortages.length > 0} loading={loading || checking}>Place order · {money(cart.total)}</Button>}
     </Form></Card></div></>;
 }
