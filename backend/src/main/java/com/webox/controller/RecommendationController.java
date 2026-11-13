@@ -11,8 +11,15 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequestMapping("/api/recommendations")
 public class RecommendationController {
     private final RecommendationService service;
-    public RecommendationController(RecommendationService service){this.service=service;}
-    public record Request(@NotBlank @Size(max=500) String prompt,@NotNull LocalDate date) {}
-    @PostMapping(produces="text/event-stream")
-    public SseEmitter recommend(@RequestAttribute long userId,@Valid @RequestBody Request body){return service.recommend(userId,body.prompt(),body.date());}
+
+    public RecommendationController(RecommendationService service) {
+        this.service = service;
+    }
+
+    public record Request(@NotBlank @Size(max = 500) String prompt, @NotNull LocalDate date) {}
+
+    @PostMapping(produces = "text/event-stream")
+    public SseEmitter recommend(@RequestAttribute long userId, @Valid @RequestBody Request body) {
+        return service.recommend(userId, body.prompt(), body.date());
+    }
 }

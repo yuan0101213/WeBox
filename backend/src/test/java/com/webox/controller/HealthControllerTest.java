@@ -32,26 +32,30 @@ class HealthControllerTest {
 
     @Test
     void reportsUpOnlyWhenBothDependenciesRespond() throws Exception {
-        mvc.perform(get("/api/health")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.status").value("UP"))
-            .andExpect(jsonPath("$.data.mysql").value("UP"))
-            .andExpect(jsonPath("$.data.redis").value("UP"));
+        mvc.perform(get("/api/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("UP"))
+                .andExpect(jsonPath("$.data.mysql").value("UP"))
+                .andExpect(jsonPath("$.data.redis").value("UP"));
         verify(redisConnection).close();
     }
 
     @Test
     void reportsServiceUnavailableWhenMysqlFails() throws Exception {
-        when(jdbc.queryForObject("SELECT 1", Integer.class)).thenThrow(new RuntimeException("private details"));
-        mvc.perform(get("/api/health")).andExpect(status().isServiceUnavailable())
-            .andExpect(jsonPath("$.data.mysql").value("DOWN"))
-            .andExpect(jsonPath("$.data.redis").value("UP"));
+        when(jdbc.queryForObject("SELECT 1", Integer.class))
+                .thenThrow(new RuntimeException("private details"));
+        mvc.perform(get("/api/health"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.data.mysql").value("DOWN"))
+                .andExpect(jsonPath("$.data.redis").value("UP"));
     }
 
     @Test
     void reportsServiceUnavailableWhenRedisFails() throws Exception {
         when(redisConnection.ping()).thenThrow(new RuntimeException("private details"));
-        mvc.perform(get("/api/health")).andExpect(status().isServiceUnavailable())
-            .andExpect(jsonPath("$.data.redis").value("DOWN"));
+        mvc.perform(get("/api/health"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.data.redis").value("DOWN"));
         verify(redisConnection).close();
     }
 }

@@ -34,7 +34,16 @@ public class HealthController {
             // A failed dependency must produce HTTP 503.
         }
         boolean ready = "UP".equals(mysqlStatus) && "UP".equals(redisStatus);
-        return ResponseEntity.status(ready ? 200 : 503).body(Map.of("data",
-            Map.of("status", ready ? "UP" : "DOWN", "mysql", mysqlStatus, "redis", redisStatus)));
+        return ResponseEntity.status(ready ? 200 : 503)
+                .body(
+                        Map.of(
+                                "data",
+                                Map.of(
+                                        "status",
+                                        ready ? "UP" : "DOWN",
+                                        "mysql",
+                                        mysqlStatus,
+                                        "redis",
+                                        redisStatus)));
     }
 }
