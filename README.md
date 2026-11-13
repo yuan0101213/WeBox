@@ -126,7 +126,7 @@ npm run test:e2e
 - [完整部署文档：中间件、后端、前端](docs/deployment-guide.md)
 - [API 文档](docs/api.md)
 - [运行截图](docs/screenshots/)
-- [codex记录](WeBox-conversation-2026-11-13.md)[codex](./Web/)
+- [codex记录](WeBox-conversation-2026-11-13.md)
 
 AI 完整原始对话请通过所使用工具原生导出至 `ai-conversations/`，本 README 和技术文档不替代对话导出。
 
