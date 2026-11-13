@@ -1,0 +1,520 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WeBox PRD V3.0</title><style>body{max-width:900px;margin:0 auto;padding:40px 24px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;line-height:1.7}
+@media(prefers-color-scheme:light){body{color:#1a1a1a;background:#fff}h1,h2,h3{color:#111}th{background:#4f6bed;color:#fff}tr:nth-child(even){background:#f5f7ff}code{background:#eee;color:#b5390b}blockquote{background:#f0f3ff}}
+@media(prefers-color-scheme:dark){body{color:#e8e8e8;background:#1c1c1e}h1,h2,h3{color:#fff}th{background:#3a4ba8;color:#fff}tr:nth-child(even){background:#262629}code{background:rgba(255,255,255,.12);color:#ffd9a0}blockquote{background:rgba(107,134,255,.12)}}
+h1{border-bottom:3px solid #6b86ff;padding-bottom:.3em}h2{border-bottom:1px solid #888;padding-bottom:.2em;margin-top:1.8em}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em}th,td{border:1px solid #888;padding:8px 10px;text-align:left;vertical-align:top}
+code{padding:2px 5px;border-radius:4px;font-size:.9em}blockquote{border-left:4px solid #6b86ff;margin:1em 0;padding:.4em 1em}</style></head><body><h1 id="ai-vibe-coding-v30">AI Vibe Coding V3.0</h1>
+<h2 id="webox-prd">WeBox — 企业员工餐食订购平台（全栈合并版 PRD）</h2>
+<h3 id="prd">产品需求文档 (PRD)</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档版本</td>
+<td>V3.0（前后端合并）</td>
+</tr>
+<tr>
+<td>创建日期</td>
+<td>2026-03-24</td>
+</tr>
+<tr>
+<td>场景</td>
+<td>1.5 小时 AI 全栈开发挑战</td>
+</tr>
+<tr>
+<td>适用岗位</td>
+<td>前端 / 后端（同一份 PRD，均要求完整前后端交付；评分侧重按岗位区分，详见附录 A）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1">1. 产品背景</h2>
+<p>WeBox 是一个企业内部的员工餐食订购平台。公司约 200 名员工，食堂每日提供菜品供员工选择，菜品库会持续扩充，当前约 50 个菜品。<strong>员工通过手机和电脑两种设备访问平台</strong>，提前选餐下单，食堂据此备餐。</p>
+<p><strong>每天上午 9:30-10:00 是订餐高峰期</strong>，大部分员工会在这个时段集中下单午餐，菜单数据在此期间被高频访问。</p>
+<p>平台有两类用户，<strong>使用同一套系统，但拥有不同的功能权限</strong>：
+- <strong>员工</strong>：浏览菜单、搜索菜品、下单订餐
+- <strong>管理员</strong>：通过 <strong>Console 后台管理模块</strong>管理菜品、处理订单、了解平台经营情况</p>
+<blockquote>
+<p><strong>系统语言要求（强制）</strong>：本系统面向用户的<strong>所有内容一律使用英文</strong>，包括但不限于——界面文案与按钮、导航与页面标题、菜单数据（菜品名称/描述/分类/过敏原/辣度/选项）、表单标签与占位符、提示与错误信息（toast / 弹窗 / 校验提示）、AI 推荐理由、数据看板文案等。本 PRD 中出现的中文示例字符串仅用于说明语义，实现时须以对应英文呈现。</p>
+</blockquote>
+<hr />
+<h2 id="2">2. 需求分层</h2>
+<p>本项目需求分为三层，候选人按顺序完成。<strong>核心功能为必须完成项，进阶功能为主要考察项，挑战功能为可选加分项</strong>——请优先保证核心与进阶功能完整可用，行有余力再挑战 Tier 3。<strong>注意：无论选择完成到哪一层，都必须交付完整可运行的前后端（全栈交付为强制要求）。</strong></p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>范围</th>
+<th>是否必做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心功能（Tier 1）</td>
+<td>员工端：注册登录、菜单浏览与搜索、购物车、下单</td>
+<td>✅ 必做</td>
+</tr>
+<tr>
+<td>进阶功能（Tier 2）</td>
+<td>员工端：偏好设置 + 订餐规则；Console 后台：菜品管理</td>
+<td>✅ 主要考察项</td>
+</tr>
+<tr>
+<td>挑战功能（Tier 3）</td>
+<td>库存实时展示与扣减、AI 智能推荐、经营数据看板</td>
+<td>⭐ 可选加分项</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3">3. 核心功能</h2>
+<h3 id="31">3.1 员工注册 / 登录</h3>
+<p>员工使用企业邮箱注册账号（需通过邮箱格式校验；<strong>不强制校验特定公司域名</strong>，同一邮箱不可重复注册）。注册后可登录系统。刷新页面不应丢失登录状态。注册、登录过程中的异常情况（如邮箱已被注册、密码不正确等）需要给予用户明确的反馈。</p>
+<p>密码需满足基本安全要求（<strong>至少 8 位，且同时包含字母与数字</strong>），且<strong>不得以明文形式存储</strong>。注册和登录表单需对用户输入做校验与长度限制（邮箱格式校验；各文本输入设合理长度上限——如邮箱/地址 ≤ 200 字符、搜索关键词 ≤ 50 字符），并对特殊字符做安全处理。系统需要区分员工和管理员两种角色，不同角色可访问的功能不同。</p>
+<h3 id="32">3.2 每日菜单</h3>
+<p>员工进入系统后看到的主页面是当日菜单。菜单以卡片形式展示菜品，每个卡片包含菜品图片、名称、价格（精确到分，如 ¥22.50）和菜系标签。</p>
+<p>点击卡片可查看菜品详情，详情页包含：
+- 菜品描述
+- 成分信息：蛋白质来源（如鸡肉、牛肉、鱼肉、豆制品等）、过敏原、辣度等级（不辣/微辣/中辣/重辣）
+- 自定义选项（如有）：部分菜品支持加料或配置选择。例如汉堡可选择酱料（番茄酱/芥末酱/蛋黄酱/BBQ酱）和面胚（普通/全麦），意面可选择面型和加料（培根 +¥5/芝士 +¥3）。每个选项组可能是必选（如面胚）或可选（如加料），部分选项有额外费用。员工选择后，菜品价格需实时更新。</p>
+<p>员工可以按菜系筛选菜品（分类以英文展示：<code>Chinese</code>、<code>Western</code>、<code>Japanese</code>、<code>Light Meal</code>、<code>Korean</code>、<code>Southeast Asian</code> 等）。筛选时支持多选，例如同时查看 <code>Chinese</code> 和 <code>Japanese</code>。</p>
+<p>员工可以通过搜索框搜索菜品，输入菜品名称或描述中的关键词查找菜品。</p>
+<p><strong>注意</strong>：菜品数量会持续增长，菜单数据在高峰期被高频访问，页面需要在菜品数量较多、访问量较高时仍能流畅使用。</p>
+<h3 id="33">3.3 购物车</h3>
+<p>员工在菜单页可以将菜品加入购物车。同一菜品可重复添加，每次点击数量加一。购物车内可以调整每个菜品的数量，也可以移除菜品。购物车需实时显示当前总价。</p>
+<p>如果菜品有自定义选项，购物车中需展示员工已选择的配置（如"全麦面胚 + 芥末酱"）。同一菜品不同配置视为不同条目（例如一个全麦汉堡和一个普通汉堡分别显示）。</p>
+<p><strong>注意</strong>：早高峰时段（9:30-10:00）是订餐高峰，大量员工会频繁点击"加入购物车"按钮。</p>
+<h3 id="34">3.4 下单</h3>
+<p>员工从购物车进入结算页面。结算页展示订单明细（菜品、自定义选项、数量、小计含加料费用、总价），员工需要选择配送日期（默认当天）、用餐时段（<code>Lunch</code> 或 <code>Dinner</code>）、配送地址（可从历史地址选择或输入新地址）。</p>
+<p>确认无误后提交订单。<strong>订单提交必须保证每次请求只会创建一个订单</strong>，即使员工因网络延迟连续点击了多次"提交"按钮。提交成功后展示订单成功页面，包含订单编号和预计配送信息（配送日期、用餐时段、配送地址）。</p>
+<p>员工可以在"我的订单"页面查看所有历史订单，点击可查看订单详情（含每个菜品的所选自定义选项、数量、小计与总价）。订单支持取消操作（仅限状态为 <code>Pending</code> 的订单）。订单状态英文枚举：<code>Pending</code>、<code>Confirmed</code>、<code>Completed</code>、<code>Cancelled</code>。</p>
+<hr />
+<h2 id="4">4. 进阶功能</h2>
+<h3 id="41">4.1 饮食偏好设置</h3>
+<p>员工可以在个人设置中配置饮食偏好：</p>
+<ul>
+<li><strong>过敏原标记</strong>：标记自己的过敏原（枚举与菜品过敏原字段一致：<code>Peanuts</code>、<code>Dairy</code>、<code>Egg</code>、<code>Gluten</code>、<code>Soy</code>、<code>Fish</code>、<code>Shellfish</code>）。当员工将含有已标记过敏原的菜品加入购物车时，系统需弹窗提醒（英文，例如 <code>This dish contains an allergen you flagged: [Egg]. Add anyway?</code>），由员工自行决定是否继续。注意：<strong>不是过滤掉含过敏原的菜品</strong>，而是在加入时提醒。</li>
+<li><strong>菜系偏好</strong>：选择偏好的菜系；当开启下文的「为我推荐」开关时，菜单页优先展示偏好菜系的菜品（关闭时按默认顺序展示）。</li>
+<li><strong>口味偏好</strong>：辣度偏好（不辣/微辣/中辣/重辣，与菜品辣度枚举 <code>None/Mild/Medium/Hot</code> 一一对应，用于菜单排序/高亮）、口味浓淡偏好（清淡/适中/重口，主要作为 AI 推荐 §5.2 的个性化参考，不强制驱动菜单硬排序）。</li>
+<li><strong>单餐预算</strong>：设置每餐的预算范围，如 ¥15-¥30。当购物车总价超出预算上限时，在结算页给予提示（但不阻止下单）。</li>
+</ul>
+<p>菜单页提供"为我推荐"开关，开启后根据偏好自动排序和高亮匹配菜品。</p>
+<h3 id="42">4.2 订餐规则</h3>
+<p>食堂运营有以下规则，系统需要严格执行：</p>
+<ul>
+<li><strong>每单数量上限</strong>：每个订单最多包含 5 份餐品（注意是总份数，不是品种数。比如 3 份宫保鸡丁 + 3 份麻婆豆腐 = 6 份，超限）。达到上限后，菜单页的"加入购物车"按钮和购物车内的"+"按钮都应该不可用，并说明原因。</li>
+<li><strong>截单时间</strong>：午餐订单须在当日上午 10:00 前提交，晚餐订单须在当日下午 15:00 前提交。过了某餐次的截单时间，系统应<strong>自动切换到时间上最近的可订餐次</strong>，判定规则为：<strong>当日晚餐若未过 15:00 → 切换为当日晚餐；当日晚餐也已截单 → 切换为次日午餐</strong>。例如上午 10:30 提交午餐订单（午餐已截单、晚餐未截单）→ 自动切换为当日晚餐。</li>
+<li><strong>不可重复下单</strong>：同一天同一餐次（如周三午餐），每位员工只能有一个有效订单（<code>Pending</code> 或 <code>Confirmed</code> 状态）。如果已有有效订单，结算页的 <code>Place Order</code> 按钮应变为 <code>View Existing Order</code> 并跳转。</li>
+</ul>
+<h3 id="43-console">4.3 Console 后台管理模块 — 菜品管理</h3>
+<p>管理员登录后进入 <strong>Console 后台管理模块</strong>（英文 UI 名 <code>Console</code>，与员工端使用不同的导航布局）。<strong>普通员工不可访问 Console 后台功能。</strong></p>
+<p><strong>菜品管理页面</strong>：
+- 以表格形式展示所有菜品，支持搜索和按分类筛选
+- 可新增菜品：填写名称、描述、价格、分类、过敏原标签，上传图片
+- 可编辑已有菜品信息
+- 可设置菜品的"上架/下架"状态，下架的菜品员工端不可见
+- 可设置每日菜单：选择哪些菜品出现在指定日期（默认次日）的菜单中，并为每个菜品设置该日供应数量</p>
+<blockquote>
+<p><strong>数据初始化说明</strong>：系统须预置<strong>当日可下单的菜单与库存种子数据</strong>，供演示当天直接完成下单、库存扣减、看板统计；「设置每日菜单」既可面向次日、也可用于初始化或调整当日菜单。评分演示以「当日可下单菜单」为准。</p>
+</blockquote>
+<hr />
+<h2 id="5">5. 挑战功能（可选加分项）</h2>
+<blockquote>
+<p>本层为<strong>可选加分项，不计入功能完成度门槛</strong>。未完成不影响基础评级，完成则作为加分与技术亮点。建议在核心 + 进阶功能完整可用后再投入。</p>
+</blockquote>
+<h3 id="51">5.1 库存、实时展示与扣减</h3>
+<p>每个菜品每日有限量供应。菜单页需展示每个菜品的剩余数量。当剩余数量较少时（≤ 3 份），需要有视觉提示。售罄的菜品不可下单。</p>
+<p><strong>关键要求</strong>：
+- <strong>多个员工可能同时下单同一个菜品，库存扣减不能出现超卖。</strong>
+- 当一位员工下单后，其他正在浏览菜单的员工应当能够<strong>实时看到库存变化，而不需要手动刷新页面</strong>。
+- 提交订单时需要再次确认库存充足，如果提交时发现库存不足，需要告知员工具体哪些菜品库存不足，并允许调整后重新提交。
+- 订单取消后，对应库存应恢复。</p>
+<h3 id="52-ai">5.2 AI 智能推荐</h3>
+<p>在菜单页面提供一个 AI 选餐助手入口。员工可以用自然语言（英文）描述想吃什么（例如 <code>I want something light today</code> / <code>A high-protein low-fat lunch</code> / <code>Nothing I ate yesterday</code>），AI 助手根据以下信息给出个性化推荐：</p>
+<ul>
+<li>员工的饮食偏好设置（如已配置）</li>
+<li>当日可用的菜品（排除已售罄的）</li>
+<li>员工的过敏原（含过敏原的菜品不应出现在推荐中）</li>
+<li>员工近期（<strong>近 7 天</strong>）订餐记录（避免重复推荐近期已点过的菜品）</li>
+</ul>
+<p>推荐结果以菜品卡片形式展示（不是纯文字），每个推荐附带个性化的推荐理由，员工可直接将推荐菜品加入购物车。推荐过程应有流式的响应体验，而非长时间等待后一次性展示。</p>
+<p><strong>注意</strong>：本功能需要实际接入 LLM 服务，候选人需自行准备 LLM API Key 或本地模型，面试现场不提供。该功能必须实际可运行。</p>
+<h3 id="53-console">5.3 Console 后台管理模块 — 经营数据看板</h3>
+<p>Console 后台管理模块增加一个数据看板页面，展示食堂的经营状况：</p>
+<ul>
+<li><strong>今日概览</strong>：今日订单数、总收入、已完成/待处理/已取消订单数</li>
+<li><strong>菜品排行</strong>：按销量排序的菜品 Top 10，展示为柱状图</li>
+<li><strong>时段分布</strong>：午餐 vs 晚餐的订单量对比</li>
+<li><strong>趋势图</strong>：最近 7 天的订单量和收入趋势折线图</li>
+<li><strong>库存预警</strong>：当前库存 ≤ 3 份的菜品列表（低库存阈值与 §5.1 一致：售罄 = 0，低库存 = 1~3）</li>
+</ul>
+<p>看板数据应能实时刷新（或提供手动刷新按钮），且数据须来自真实订单。</p>
+<hr />
+<h2 id="6">6. 菜品数据</h2>
+<p>候选人可使用以下菜品信息或自行补充。<strong>入库与展示均须使用英文</strong>（下表即为系统中应存储/展示的英文内容）：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Price</th>
+<th>Category</th>
+<th>Protein</th>
+<th>Allergens</th>
+<th>Spice Level</th>
+<th>Customization Options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kung Pao Chicken</td>
+<td>Classic Sichuan dish, chicken stir-fried with peanuts and dried chili</td>
+<td>¥22.00</td>
+<td>Chinese</td>
+<td>Chicken</td>
+<td>Peanuts</td>
+<td>Medium</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Caesar Salad</td>
+<td>Fresh romaine lettuce with Parmesan and Caesar dressing</td>
+<td>¥28.50</td>
+<td>Light Meal</td>
+<td>None</td>
+<td>Dairy, Egg</td>
+<td>None</td>
+<td>Add-ons: Grilled Chicken (+¥6) / Bacon (+¥5) / Avocado (+¥4)</td>
+</tr>
+<tr>
+<td>Salmon Sashimi Set</td>
+<td>Fresh salmon sashimi with rice and miso soup</td>
+<td>¥45.00</td>
+<td>Japanese</td>
+<td>Fish</td>
+<td>Fish</td>
+<td>None</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Tomato Pasta</td>
+<td>Classic Italian tomato pasta with fresh basil</td>
+<td>¥26.50</td>
+<td>Western</td>
+<td>None</td>
+<td>Gluten</td>
+<td>None</td>
+<td>Pasta Type (required): Spaghetti / Fusilli / Penne; Add-ons: Bacon (+¥5) / Cheese (+¥3)</td>
+</tr>
+<tr>
+<td>Tom Yum Soup</td>
+<td>Thai hot &amp; sour shrimp soup with lemongrass, galangal, lime leaves</td>
+<td>¥32.00</td>
+<td>Southeast Asian</td>
+<td>Shrimp</td>
+<td>Shellfish</td>
+<td>Hot</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Chicken Quinoa Bowl</td>
+<td>Low-fat high-protein grilled chicken with quinoa, avocado, veggies</td>
+<td>¥35.80</td>
+<td>Light Meal</td>
+<td>Chicken</td>
+<td>None</td>
+<td>None</td>
+<td>Base (required): Quinoa / Brown Rice / Mixed Grains</td>
+</tr>
+<tr>
+<td>Mapo Tofu</td>
+<td>Sichuan classic, soft tofu with spicy minced meat</td>
+<td>¥18.00</td>
+<td>Chinese</td>
+<td>Tofu, Pork</td>
+<td>Soy</td>
+<td>Medium</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Korean Bibimbap</td>
+<td>Stone-pot mixed rice with veggies, fried egg, and chili sauce</td>
+<td>¥30.00</td>
+<td>Korean</td>
+<td>Egg</td>
+<td>Egg, Soy</td>
+<td>Mild</td>
+<td>Add-ons: Cheese (+¥3) / Fried Egg (+¥2) / Beef Slices (+¥8)</td>
+</tr>
+<tr>
+<td>Classic Beef Burger</td>
+<td>Angus beef patty with lettuce, tomato, onion</td>
+<td>¥38.00</td>
+<td>Western</td>
+<td>Beef</td>
+<td>Gluten, Dairy</td>
+<td>None</td>
+<td>Bun (required): Plain / Whole Wheat; Sauce (required): Ketchup / Mustard / Mayo / BBQ; Add-ons: Cheese (+¥3) / Bacon (+¥5) / Fried Egg (+¥2)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>分类枚举（英文）：<code>Chinese</code>、<code>Western</code>、<code>Japanese</code>、<code>Light Meal</code>、<code>Korean</code>、<code>Southeast Asian</code>。
+辣度枚举（英文）：<code>None</code>、<code>Mild</code>、<code>Medium</code>、<code>Hot</code>。
+过敏原枚举（英文，固定全集）：<code>Peanuts</code>、<code>Dairy</code>、<code>Egg</code>、<code>Gluten</code>、<code>Soy</code>、<code>Fish</code>、<code>Shellfish</code>（海鲜类统一用 <code>Fish</code> / <code>Shellfish</code>，不单列 <code>Seafood</code>，以免偏好标记与菜品标签不匹配）。
+货币：价格统一使用人民币、精确到分，货币符号保留 <code>¥</code>（如 <code>¥22.50</code>）；金额展示与计算须避免浮点精度问题。</p>
+</blockquote>
+<p>菜品图片资源见附件 <code>webox_product_images.zip</code>。</p>
+<hr />
+<h2 id="7">7. 交付标准</h2>
+<p>本项目定位为企业级应用，不是演示 Demo。技术选型和实现质量需要满足生产环境运行标准。</p>
+<h3 id="71">7.1 技术选型要求</h3>
+<ul>
+<li><strong>本项目要求完整实现前后端</strong>，不能只做前端或只做后端，必须是可完整运行的前后端项目</li>
+<li>前端技术栈不限，需说明选型理由</li>
+<li>后端使用 <strong>Java（JDK 17）+ Spring Boot</strong> 框架</li>
+<li>数据持久化使用 <strong>独立部署的 MySQL 服务</strong>，<strong>不接受嵌入式 / 内存数据库</strong>（如 H2、SQLite、HSQLDB、Derby、嵌入式 MySQL 等一律不可）；MySQL 须作为独立进程真实运行，并可按 README 步骤连接</li>
+<li><strong>缓存方案不限，Redis 为可选项</strong>：菜单等高频数据缓存、会话/令牌、库存与幂等控制等，可选用 Redis，也可用进程内缓存或其他方案，<strong>不强制使用 Redis</strong>。若引入 Redis，需在 README 给出启动步骤</li>
+<li>AI 推荐功能需要实际接入 LLM 服务（候选人自行准备，面试现场不提供 API Key），该功能必须可实际运行</li>
+<li><strong>系统语言</strong>：所有面向用户的内容（界面文案、菜单数据、错误/提示信息、AI 推荐理由等）<strong>一律使用英文</strong>（参见 §1 系统语言要求）</li>
+<li>可使用任意 AI 编码工具辅助开发</li>
+</ul>
+<p><strong>目标架构</strong>：<code>前端 SPA → 后端服务（JDK 17 + Spring Boot）→ 独立 MySQL 服务（持久化）</code> 为<strong>强制</strong>基础设施；缓存层（如 Redis）为<strong>可选增强</strong>，用与不用不影响功能门槛。README 须给出 JDK + Spring Boot 应用 + MySQL 的完整本地启动步骤（若引入 Redis 等额外服务，一并说明）。</p>
+<h3 id="72">7.2 交付物清单</h3>
+<p>候选人需要交付以下完整内容：</p>
+<table>
+<thead>
+<tr>
+<th>交付物</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可运行代码</td>
+<td>项目可在本地完整启动和运行</td>
+</tr>
+<tr>
+<td>README</td>
+<td>项目介绍、技术栈说明、本地启动步骤（确保他人能从零开始启动项目）</td>
+</tr>
+<tr>
+<td>API 文档</td>
+<td>接口清单、请求/响应格式说明（格式不限）</td>
+</tr>
+<tr>
+<td>架构说明</td>
+<td>系统架构图或文字说明，包含核心模块划分和数据流</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>核心业务逻辑的测试用例，可运行并通过</td>
+</tr>
+<tr>
+<td><strong>AI 编程对话记录</strong></td>
+<td><strong>从项目开始到结束的完整原始对话导出</strong>（Cursor / Claude Code / ChatGPT / Copilot Chat / Windsurf / Cline 等任意工具的原生导出文件均可）。<strong>不接受截图、节选、片段或事后整理摘要</strong>。多个工具混用时全部提交。存放于项目根目录 <code>ai-conversations/</code> 子目录，或在 README 中明确指出存放路径。<strong>该项缺失或不达标将直接影响最终评级，请务必妥善保存。</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="73">7.3 项目定位</h3>
+<p><strong>这是一个长期运行的项目，你是这个项目的 Owner。</strong> 请从项目长期稳定运行的角度考虑你的设计和实现，确保项目具备可维护性和可靠性。</p>
+<h3 id="74">7.4 演示要求</h3>
+<p>1.5 小时后，候选人需要：
+- 演示已完成的功能
+- 展示交付文档（含 AI 编程对话记录）
+- 简要说明技术选型理由
+- 说明遇到的问题和解决方式</p>
+<hr />
+<h2 id="a">附录 A：岗位评分侧重（面试官内部使用，不对候选人公开）</h2>
+<blockquote>
+<p>本 PRD 为前端 / 后端候选人共用同一份，业务内容一致，<strong>均要求完整前后端交付</strong>（JDK 17 + Spring Boot + 独立 MySQL 架构，Redis 等缓存层为可选增强；全栈交付为强制要求，不因岗位或完成层级豁免）。产品优化（10）维度前后端评分标准相同；<strong>主要差异在「技术方案 P6+（20 分）」的考察侧重，以及后端架构相关评分对前端岗位的放宽</strong>——面试官按候选人<strong>实际报考岗位</strong>选择对应的 P6+ 考察表与架构评分口径。AI 对话记录门槛、下单级联归零等铁律对两类岗位一视同仁（详见评分指南 §1.3）。</p>
+</blockquote>
+<h3 id="a0-tier-3">A.0 功能完成度口径（Tier 3 加分化后）</h3>
+<blockquote>
+<p>挑战功能（Tier 3）已调整为<strong>可选加分项</strong>，不再计入功能完成度基数与门槛。功能完成度重新以 <strong>Tier 1 + Tier 2 = 50 分</strong> 为基数：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>分值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1 核心功能</td>
+<td>30</td>
+<td>必做，端到端可用才计分</td>
+</tr>
+<tr>
+<td>Tier 2 进阶功能</td>
+<td>20</td>
+<td>主要考察项，端到端可用才计分</td>
+</tr>
+<tr>
+<td><strong>功能完成度基数</strong></td>
+<td><strong>50</strong></td>
+<td>门槛与评级按此基数计算</td>
+</tr>
+<tr>
+<td>Tier 3 挑战功能</td>
+<td><strong>+10（加分）</strong></td>
+<td>可选，做了加分、不做不扣；加分后功能维度上限仍以 60 封顶</td>
+</tr>
+</tbody>
+</table>
+<p><strong>功能完成度门槛（90%）随基数调整为 ≥ 45 / 50</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>功能完成度（基数 50）</th>
+<th>最高可达评级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≥ 45 分（90%）</td>
+<td>按总分正常评级</td>
+</tr>
+<tr>
+<td>40–44 分（80–89%）</td>
+<td>最高「不推荐」，无论总分多高</td>
+</tr>
+<tr>
+<td>&lt; 40 分（&lt; 80%）</td>
+<td>直接「不通过」</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>说明一：Tier 3 中依赖下单的项（实时同步、库存扣减、看板真实数据、并发安全等）<strong>级联归零规则依旧适用</strong>——只是这些项现在归在「加分」而非「门槛」，下单不通仅使对应加分/ P6+ 项归零，不再直接拉低功能门槛基数。</p>
+<p>说明二：P6+（20 分）中的「并发安全」「下单幂等」等仍照常考察，其业务锚点（同时下单不超卖、幂等提交）在 Tier 1「下单」与 Tier 3「库存」中均有体现；即使候选人未做 Tier 3 的实时/看板，只要下单与库存扣减可用，仍可验证这些 P6+ 项。</p>
+</blockquote>
+<h3 id="a1-p6-20">A.1 前端候选人 · P6+ 考察侧重（20 分）</h3>
+<table>
+<thead>
+<tr>
+<th>考察点</th>
+<th>分值</th>
+<th>PRD 中的业务锚点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多屏幕适配 / 响应式</td>
+<td>4</td>
+<td>§1「员工通过手机和电脑两种设备访问」</td>
+</tr>
+<tr>
+<td>分页 / 列表性能</td>
+<td>4</td>
+<td>§3.2「菜品约 50 个且持续增长，数量较多时仍能流畅使用」</td>
+</tr>
+<tr>
+<td>按钮防抖 / 节流</td>
+<td>4</td>
+<td>§3.3「早高峰频繁点击加入购物车」</td>
+</tr>
+<tr>
+<td>价格精度处理</td>
+<td>4</td>
+<td>§3.2「价格精确到分，如 ¥22.50」</td>
+</tr>
+<tr>
+<td>输入校验与限制</td>
+<td>4</td>
+<td>§3.1 注册/地址、§3.2 搜索框</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a2-p6-20">A.2 后端候选人 · P6+ 考察侧重（20 分）</h3>
+<table>
+<thead>
+<tr>
+<th>考察点</th>
+<th>分值</th>
+<th>PRD 中的业务锚点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>缓存策略</td>
+<td>4</td>
+<td>§1「9:30-10:00 高峰集中下单」+ §3.2「菜单高频访问」；对菜单等热点数据做缓存并有合理的更新/失效策略（Redis 或进程内缓存等方案均可，不限定 Redis）</td>
+</tr>
+<tr>
+<td>下单幂等</td>
+<td>4</td>
+<td>§3.4「每次请求只会创建一个订单，即使连续点击多次提交」</td>
+</tr>
+<tr>
+<td>SQL 注入防护</td>
+<td>4</td>
+<td>§3.2「员工可搜索菜品」</td>
+</tr>
+<tr>
+<td>用户权限校验</td>
+<td>4</td>
+<td>§1 / §3.1 / §4.3「两类用户不同权限，员工不可访问 Console 后台」</td>
+</tr>
+<tr>
+<td>并发安全（防超卖）</td>
+<td>4</td>
+<td>§5.1「多个员工同时下单同一菜品，不能超卖」</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>说明：合并版 PRD 已同时包含前后端两套业务锚点（高峰并发 + 多端访问、幂等提交 + 价格精度等），因此<strong>同一份文档发给任一岗位都能完整承载其 P6+ 考察点</strong>，无需再区分发放。评分时仅需按岗位切换附录 A.1 / A.2 对应的 P6+ 表格即可。</p>
+</blockquote>
+<h3 id="a3">A.3 前端候选人 · 后端架构评分放宽</h3>
+<blockquote>
+<p>前端岗位的核心考察在前端工程能力（A.1），后端架构不作为其能力评判重点。因此对前端候选人，<strong>后端架构相关项按「能合理接入并端到端跑通即可」的标准评分，不做深度/最优性考察</strong>：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>架构相关项</th>
+<th>后端候选人口径</th>
+<th><strong>前端候选人（放宽）口径</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>缓存方案（含可选 Redis）</td>
+<td>若做缓存，考察更新与失效策略、命中率、一致性；Redis 为可选方案之一</td>
+<td><strong>是否做缓存/是否用 Redis 均不作为前端评分点，不考察策略优劣</strong></td>
+</tr>
+<tr>
+<td>缓存策略（P6+ 4 分）</td>
+<td>后端 P6+ 项，占 4 分</td>
+<td><strong>不在前端 P6+ 考察范围</strong>（前端 P6+ 用 A.1 表，20 分全部为前端项）</td>
+</tr>
+<tr>
+<td>下单幂等 / 并发安全</td>
+<td>后端 P6+ 各 4 分，端到端验证</td>
+<td><strong>不计入前端 P6+</strong>；仅要求下单结果正确、不重复、不超卖（属功能正确性），不深究后端实现方案</td>
+</tr>
+<tr>
+<td>架构说明文档（稳定性 3 分之一）</td>
+<td>需体现 MySQL 分层、数据流、并发决策（若用缓存/Redis 一并说明）</td>
+<td><strong>只需说明整体前后端架构与数据流即可，后端内部架构深度不扣分</strong></td>
+</tr>
+<tr>
+<td>后端代码质量 / 分层设计</td>
+<td>纳入观察</td>
+<td><strong>不作为前端评分依据</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>底线不变</strong>：前端候选人仍须交付<strong>完整可运行的全栈项目</strong>（JDK 17 + Spring Boot + 独立 MySQL 齐全并能启动；<strong>Redis 为可选项，用与不用均可</strong>）。放宽的是「后端架构的深度与最优性」，不是「是否需要后端」。若前端候选人后端完全跑不起来、或核心流程因后端不可用而中断，仍按对应功能项归零处理；若候选人声明使用 Redis，则不可用内存 Map 假替。</p>
+</blockquote>
+<hr />
+<p>— 文档结束 —</p></body></html>

@@ -1,0 +1,38 @@
+server:
+  port: ${SERVER_PORT:8080}
+spring:
+  config:
+    import: optional:file:.env.local.properties,optional:file:../.env.local.properties
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  application:
+    name: webox-backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:13306/webox?connectionTimeZone=Asia/Shanghai&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:webox}
+    password: ${DB_PASSWORD:webox_dev}
+    hikari:
+      connection-timeout: 3000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:16379}
+      timeout: 2s
+      connect-timeout: 2s
+  jackson:
+    time-zone: Asia/Shanghai
+  sql:
+    init:
+      mode: never
+webox:
+  auth:
+    token-ttl-seconds: 300
+  business-zone: Asia/Shanghai
+
+
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:}
+  model: ${DEEPSEEK_MODEL:deepseek-flash}
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}

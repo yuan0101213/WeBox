@@ -1,0 +1,17 @@
+.DS_Store
+.idea/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+target/
+*.log
+
+frontend/test-results/
+frontend/playwright-report/
+.run/
+uploads/
+backend/uploads/
+
+!.env.local.properties.example
